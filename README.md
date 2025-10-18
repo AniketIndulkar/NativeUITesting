@@ -82,25 +82,3 @@ com.mobile.core.uitesting.espresso/
 └── config/                                     # CONFIGURATION
 ├── TestConfig.kt                          # Global test configuration
 └── TimeoutConfig.kt                       # Timeout constants
-```
-
----
-
-## 📝 REASON: Why WaitActions Should Be With Actions
-
-You're **100% CORRECT**! Here's why:
-
-### ❌ Old Structure (Separated)
-```
-├── actions/
-│   └── ClickActions.kt
-├── wait/
-│   └── WaitActions.kt      # ❌ Separated - inconsistent!
-```
-
-### ✅ New Structure (Together)
-```
-├── actions/
-│   ├── ClickActions.kt
-│   ├── WaitActions.kt      # ✅ Together - consistent!
-│   └── ...
