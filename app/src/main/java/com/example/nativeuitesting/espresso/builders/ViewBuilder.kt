@@ -5,9 +5,11 @@ import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.annotation.IdRes
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.Root
 import androidx.test.espresso.ViewAction
 import androidx.test.espresso.ViewAssertion
 import androidx.test.espresso.ViewInteraction
+import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers
 import com.example.nativeuitesting.espresso.matchers.ColorMatchers
 import com.example.nativeuitesting.espresso.matchers.DrawableMatchers
@@ -15,6 +17,8 @@ import com.example.nativeuitesting.espresso.matchers.ViewPropertyMatchers
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import org.hamcrest.Matchers.allOf
+import org.hamcrest.Matchers.any
+import org.hamcrest.Matchers.not
 
 /**
  * Fluent builder for creating complex view matchers with chainable methods.
@@ -37,6 +41,7 @@ import org.hamcrest.Matchers.allOf
  */
 class ViewBuilder {
     private val matchers = mutableListOf<Matcher<View>>()
+    private var rootMatcher: Matcher<Root>? = null
 
     // ============================================
     // BASIC MATCHERS - ALL RETURN ViewBuilder
@@ -251,38 +256,72 @@ class ViewBuilder {
     fun check(assertion: ViewAssertion): ViewInteraction {
         return toInteraction().check(assertion)
     }
-}
-
 // ============================================
 // DSL HELPER FUNCTIONS
 // ============================================
 
-/**
- * Creates a ViewBuilder with DSL syntax
- *
- * Usage:
- * ```
- * viewBuilder {
- *     withId(R.id.button)
- *     withText("Submit")
- *     isEnabled()
- * }.perform(click())
- * ```
- */
-fun viewBuilder(block: ViewBuilder.() -> Unit): ViewBuilder {
-    return ViewBuilder().apply(block)
-}
+    /**
+     * Creates a ViewBuilder with DSL syntax
+     *
+     * Usage:
+     * ```
+     * viewBuilder {
+     *     withId(R.id.button)
+     *     withText("Submit")
+     *     isEnabled()
+     * }.perform(click())
+     * ```
+     */
+    fun viewBuilder(block: ViewBuilder.() -> Unit): ViewBuilder {
+        return ViewBuilder().apply(block)
+    }
 
-/**
- * Quick shorthand for finding view by ID
- */
-fun viewWithId(@IdRes id: Int): ViewBuilder {
-    return ViewBuilder().withId(id)
-}
+    /**
+     * Quick shorthand for finding view by ID
+     */
+    fun viewWithId(@IdRes id: Int): ViewBuilder {
+        return ViewBuilder().withId(id)
+    }
 
-/**
- * Quick shorthand for finding view by text
- */
-fun viewWithText(text: String): ViewBuilder {
-    return ViewBuilder().withText(text)
+    /**
+     * Quick shorthand for finding view by text
+     */
+    fun viewWithText(text: String): ViewBuilder {
+        return ViewBuilder().withText(text)
+    }
+
+    // ============================================
+    // ROOT MATCHERS (FOR DIALOGS!)
+    // ============================================
+
+    /**
+     * Specify that this view is in a Dialog.
+     * This is critical for dialog views!
+     *
+     * Usage:
+     * ViewBuilder()
+     *     .withId(R.id.dialog_header)
+     *     .inDialog()  // ← Tells Espresso to look in dialog window
+     *     .assertDisplayed()
+     */
+    fun inDialog(): ViewBuilder {
+        rootMatcher = RootMatchers.isDialog()
+        return this
+    }
+
+    /**
+     * Specify that this view is in a Popup window
+     */
+    fun inPopup(): ViewBuilder {
+        rootMatcher = RootMatchers.isPlatformPopup()
+        return this
+    }
+
+    /**
+     * Specify that this view is in a Toast
+     */
+    fun inToast(): ViewBuilder {
+        rootMatcher = RootMatchers.withDecorView(not(any(View::class.java)))
+        return this
+    }
 }
