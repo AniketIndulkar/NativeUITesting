@@ -103,4 +103,58 @@ object TextMatchers {
             }
         }
     }
+
+    /**
+     * Matcher for empty or null text
+     */
+    fun withEmptyText(): Matcher<View> {
+        return object : BoundedMatcher<View, View>(View::class.java) {
+            override fun describeTo(description: Description) {
+                description.appendText("with empty or null text")
+            }
+
+            override fun matchesSafely(view: View): Boolean {
+                return when (view) {
+                    is TextView -> view.text.isNullOrEmpty()
+                    else -> false
+                }
+            }
+        }
+    }
+
+    /**
+     * Matcher for exact text content
+     */
+    fun withText(expectedText: String): Matcher<View> {
+        return object : BoundedMatcher<View, View>(View::class.java) {
+            override fun describeTo(description: Description) {
+                description.appendText("with text: '$expectedText'")
+            }
+
+            override fun matchesSafely(view: View): Boolean {
+                return when (view) {
+                    is TextView -> view.text.toString() == expectedText
+                    else -> false
+                }
+            }
+        }
+    }
+
+    /**
+     * Matcher for any non-empty text
+     */
+    fun withAnyText(): Matcher<View> {
+        return object : BoundedMatcher<View, View>(View::class.java) {
+            override fun describeTo(description: Description) {
+                description.appendText("with any non-empty text")
+            }
+
+            override fun matchesSafely(view: View): Boolean {
+                return when (view) {
+                    is TextView -> !view.text.isNullOrEmpty()
+                    else -> false
+                }
+            }
+        }
+    }
 }
