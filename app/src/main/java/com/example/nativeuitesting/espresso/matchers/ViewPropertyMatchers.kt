@@ -1,6 +1,8 @@
 package com.example.nativeuitesting.espresso.matchers
 
 import android.view.View
+import android.widget.CheckBox
+import android.widget.Checkable
 import android.widget.TextView
 import androidx.test.espresso.matcher.BoundedMatcher
 import org.hamcrest.Description
@@ -199,5 +201,50 @@ object ViewPropertyMatchers {
                 return view.isFocusableInTouchMode
             }
         }
+    }
+
+    /**
+     * Matcher for checked
+     */
+    fun isChecked(): Matcher<View> {
+        return object : BoundedMatcher<View, View>(View::class.java) {
+            override fun describeTo(description: Description) {
+                description.appendText("is checked")
+            }
+
+            override fun matchesSafely(view: View): Boolean {
+                return if (view is Checkable) {
+                    view.isChecked
+                } else {
+                    false
+                }
+            }
+        }
+    }
+
+    /**
+     * Matcher for unchecked
+     */
+    fun isNotChecked(): Matcher<View> {
+        return object : BoundedMatcher<View, View>(View::class.java) {
+            override fun describeTo(description: Description) {
+                description.appendText("is not checked")
+            }
+
+            override fun matchesSafely(view: View): Boolean {
+                return if (view is Checkable) {
+                    !view.isChecked
+                } else {
+                    false
+                }
+            }
+        }
+    }
+
+    /**
+     * Matcher for checkbox state
+     */
+    fun hasCheckedState(isChecked: Boolean): Matcher<View> {
+        return if (isChecked) isChecked() else isNotChecked()
     }
 }
